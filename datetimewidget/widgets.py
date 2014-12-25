@@ -287,6 +287,26 @@ class DateTimeWidget(PickerWidgetMixin, DateTimeInput):
         super(DateTimeWidget, self).__init__(attrs, options, usel10n, bootstrap_version)
 
 
+class SplitDateTimeWidget(MultiWidget):
+    """
+    Based on django.forms.widgets.SplitDateTimeWidget
+    This widget splits input into separate date and time inputs.
+    """
+    def __init__(self, attrs=None, options=None, date_options=None, time_options=None, usel10n=None, bootstrap_version=None):
+        date_options = dict(options, **date_options)
+        time_options = dict(options, **time_options)
+
+        widgets = (DateWidget(attrs=attrs, options=date_options, usel10n=usel10n, bootstrap_version=bootstrap_version),
+                   TimeWidget(attrs=attrs, options=time_options, usel10n=usel10n, bootstrap_version=bootstrap_version))
+        super(SplitDateTimeWidget, self).__init__(widgets, attrs=attrs)
+
+    def decompress(self, value):
+        if value:
+            value = to_current_timezone(value)
+            return [value.date(), value.time().replace(microsecond=0)]
+        return [None, None]
+
+
 class DateWidget(PickerWidgetMixin, DateInput):
     """
     DateWidget is the corresponding widget for Date field, it renders only the date section of
